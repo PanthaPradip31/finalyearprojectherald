@@ -1,0 +1,16 @@
+{
+  "version": 3,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "outputDirectory": ".vercel/output",
+  "cache": {
+    "paths": [
+      "node_modules",
+      ".next/cache"
+    ]
+  }
+}
