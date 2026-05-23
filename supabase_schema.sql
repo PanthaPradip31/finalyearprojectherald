@@ -1,6 +1,5 @@
--- PUBG Live Production System Supabase Database Schema Setup
+-- PUBG Live Production System Supabase Relational Database Schema Setup
 -- Run this in your Supabase SQL Editor to initialize all relational tables.
--- This schema supports multiple authenticated users, with an admin list for privileged actions.
 
 -- 1. Tournament Table
 create table if not exists public.tournament (
@@ -21,15 +20,9 @@ create table if not exists public.teams (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
-<<<<<<< HEAD
--- 3. Players Table (With Foreign Key Cascade Deletes for dynamic roster clearing)
--- When a team is completely deleted, or when individual player slots are cleared in the admin UI,
--- the system propagates the changes down to this table to keep active rosters synchronized.
-=======
 -- 3. Players Table (With Foreign Key Cascade Deletes for dynamic Roster clearing)
 -- When a team is completely deleted, or when individual player slots are cleared in the admin UI,
 -- the system propagates the changes down to this table to keep the active rosters fully synchronized.
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
 create table if not exists public.players (
   id text primary key,
   team_id text references public.teams(id) on delete cascade not null, -- Cascade deletes automatically clear player rows when a team is removed
@@ -92,37 +85,7 @@ create table if not exists public.sponsors (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
-<<<<<<< HEAD
--- 8. Admins Table (Privileged users able to perform director actions)
--- This table supports any number of admin emails. Add rows here for every account
--- that should be allowed to perform director/admin-level actions.
-create table if not exists public.admins (
-  email text primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- Seed placeholder admin (update with your real admin emails in Supabase SQL editor)
-insert into public.admins (email) values ('admin@example.com') on conflict do nothing;
-
--- 9. Events Table for detailed realtime event tracking (kills/knocks/team eliminations)
-create table if not exists public.events (
-  id uuid default gen_random_uuid() primary key,
-  match_id text,
-  team_id text,
-  actor_id text,
-  actor_name text,
-  target_id text,
-  target_name text,
-  type text not null check (type in ('knock','kill','revive','team_elim')),
-  weapon text,
-  meta jsonb default '{}'::jsonb,
-  timestamp timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- 10. Enable Row Level Security (RLS) across all tables
-=======
 -- 8. Enable Row Level Security (RLS) across all tables
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
 alter table public.tournament enable row level security;
 alter table public.teams enable row level security;
 alter table public.players enable row level security;
@@ -130,14 +93,6 @@ alter table public.standings enable row level security;
 alter table public.kill_feed enable row level security;
 alter table public.overlay_config enable row level security;
 alter table public.sponsors enable row level security;
-<<<<<<< HEAD
-alter table public.admins enable row level security;
-alter table public.events enable row level security;
-
--- 10.a Ensure Supabase client roles can access the public schema
-grant usage on schema public to authenticated;
-grant usage on schema public to anon;
-=======
 
 -- 9. Grant schema and table privileges to Supabase client roles
 -- This avoids Postgres schema-level access errors like "permission denied for schema public"
@@ -150,97 +105,29 @@ alter default privileges in schema public grant usage on sequences to authentica
 
 -- 10. Create unified public read and write access policies
 -- (Allows easy client-side updates without needing complex authentication flows)
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
 
--- 11. Drop any existing policies so this script can be rerun safely
--- Tournament
-drop policy if exists "Public read tournament" on public.tournament;
-drop policy if exists "Public write tournament" on public.tournament;
-drop policy if exists "Authenticated write tournament" on public.tournament;
-
--- Teams
-drop policy if exists "Public read teams" on public.teams;
-drop policy if exists "Public write teams" on public.teams;
-drop policy if exists "Authenticated write teams" on public.teams;
-
--- Players
-drop policy if exists "Public read players" on public.players;
-drop policy if exists "Public write players" on public.players;
-drop policy if exists "Authenticated write players" on public.players;
-
--- Standings
-drop policy if exists "Public read standings" on public.standings;
-drop policy if exists "Public write standings" on public.standings;
-drop policy if exists "Authenticated write standings" on public.standings;
-
--- Kill feed
-drop policy if exists "Public read kill_feed" on public.kill_feed;
-drop policy if exists "Public write kill_feed" on public.kill_feed;
-drop policy if exists "Admins write kill_feed" on public.kill_feed;
-
--- Overlay config
-drop policy if exists "Public read overlay_config" on public.overlay_config;
-drop policy if exists "Public write overlay_config" on public.overlay_config;
-drop policy if exists "Admins write overlay_config" on public.overlay_config;
-
--- Sponsors
-drop policy if exists "Public read sponsors" on public.sponsors;
-drop policy if exists "Public write sponsors" on public.sponsors;
-drop policy if exists "Authenticated write sponsors" on public.sponsors;
-
--- Admins
-drop policy if exists "Public read admins" on public.admins;
-drop policy if exists "Admins manage admins" on public.admins;
-
--- Events
-drop policy if exists "Public read events" on public.events;
-drop policy if exists "Admins write events" on public.events;
-
--- 12. Create policies
 create policy "Public read tournament" on public.tournament for select using (true);
-create policy "Authenticated write tournament" on public.tournament for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Public write tournament" on public.tournament for all using (true) with check (true);
 
 create policy "Public read teams" on public.teams for select using (true);
-create policy "Authenticated write teams" on public.teams for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Public write teams" on public.teams for all using (true) with check (true);
 
 create policy "Public read players" on public.players for select using (true);
-create policy "Authenticated write players" on public.players for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Public write players" on public.players for all using (true) with check (true);
 
 create policy "Public read standings" on public.standings for select using (true);
-create policy "Authenticated write standings" on public.standings for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Public write standings" on public.standings for all using (true) with check (true);
 
 create policy "Public read kill_feed" on public.kill_feed for select using (true);
-create policy "Admins write kill_feed" on public.kill_feed for all using (
-  auth.role() = 'authenticated' and exists (select 1 from public.admins where email = auth.jwt() ->> 'email')
-);
+create policy "Public write kill_feed" on public.kill_feed for all using (true) with check (true);
 
 create policy "Public read overlay_config" on public.overlay_config for select using (true);
-create policy "Admins write overlay_config" on public.overlay_config for all using (
-  auth.role() = 'authenticated' and exists (select 1 from public.admins where email = auth.jwt() ->> 'email')
-);
+create policy "Public write overlay_config" on public.overlay_config for all using (true) with check (true);
 
 create policy "Public read sponsors" on public.sponsors for select using (true);
-<<<<<<< HEAD
-create policy "Authenticated write sponsors" on public.sponsors for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
-create policy "Public read admins" on public.admins for select using (
-  auth.role() = 'authenticated' and exists (select 1 from public.admins where email = auth.jwt() ->> 'email')
-);
-create policy "Admins manage admins" on public.admins for all using (
-  auth.role() = 'authenticated' and exists (select 1 from public.admins where email = auth.jwt() ->> 'email')
-);
-
-create policy "Public read events" on public.events for select using (true);
-create policy "Admins write events" on public.events for all using (
-  auth.role() = 'authenticated' and exists (select 1 from public.admins where email = auth.jwt() ->> 'email')
-);
-
--- 13. Add all tables to the supabase_realtime publication
-=======
 create policy "Public write sponsors" on public.sponsors for all using (true) with check (true);
 
 -- 10. Add all tables to the supabase_realtime publication
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
 alter publication supabase_realtime add table public.tournament;
 alter publication supabase_realtime add table public.teams;
 alter publication supabase_realtime add table public.players;
@@ -248,10 +135,6 @@ alter publication supabase_realtime add table public.standings;
 alter publication supabase_realtime add table public.kill_feed;
 alter publication supabase_realtime add table public.overlay_config;
 alter publication supabase_realtime add table public.sponsors;
-<<<<<<< HEAD
-alter publication supabase_realtime add table public.admins;
-alter publication supabase_realtime add table public.events;
-=======
 
 -- 11. Strict Single-Admin Security Guard Constraint
 -- Prevents any unauthorized third-party registrations or database growth by restricting auth.users to exactly 1.
@@ -276,6 +159,5 @@ create trigger limit_admin_signup
 before insert on auth.users
 for each row
 execute function public.limit_admin_count();
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
 
 

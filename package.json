@@ -6,8 +6,7 @@
     "build": "next build --turbo",
     "dev": "next dev --turbo",
     "lint": "eslint .",
-    "start": "next start",
-    "test": "vitest"
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -48,10 +47,6 @@
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^12.39.0",
-<<<<<<< HEAD
-    "lottie-react": "^2.4.0",
-=======
->>>>>>> fe4b066170877f802c4f2ef454b7aebde548f6fb
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "next": "^16.2.6",
@@ -78,7 +73,6 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5",
-    "vitest": "^1.0.0"
+    "typescript": "^5"
   }
 }
