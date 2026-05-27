@@ -62,7 +62,7 @@ This system replaces manual Excel/Google Sheets updates with an automated soluti
 1. Navigate to **Admin > Teams** (`/admin/teams`)
 2. Click **"Load Sample Teams"** to add demo teams, OR
 3. Click **"Add Team"** to create teams manually:
-   - Enter team name and tag (e.g., "Soul" / "SOUL")
+   - Enter team name and tag (e.g., "Name" / "TAG")
    - Add 4 players per team
    - Optionally add team logo URL
 
